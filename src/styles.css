@@ -423,8 +423,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .tl-toggle:active{transform:scale(.94)}
 .tl-block.collapsed .tl-inner{padding:7px 14px}
 .tl-block.collapsed .tl-top{margin-bottom:0}
-.tl-block.collapsed .tl-name-inp{font-size:16px}
-.tl-block.collapsed .tl-time{font-size:16px}
+.tl-block.collapsed .tl-name-inp{font-size:19px}
+.tl-block.collapsed .tl-time{font-size:19px}
 .tl-block.collapsed .tl-dur-label{max-height:0;opacity:0;margin-top:0}
 .tl-block.collapsed .tl-tasks-wrap{margin-top:0}
 .tl-block.collapsed .tl-foot{margin-top:0}

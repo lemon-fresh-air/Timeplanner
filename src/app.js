@@ -906,7 +906,11 @@ function addTask(){
 // ── CLEAR ALL ────────────────────────────────────────────────────
 function clearAll(){
   if(!confirm('Очистити всі задачі?'))return;
-  tasks=[];groupNames={};save();exitSelMode();renderTaskList();closeMenu();
+  tasks=[];
+  groupNames={};
+  tlOrder=[];tlCollapsed={};tlSelected=null;startAt=null;
+  document.querySelectorAll('.tl-name-inp').forEach(input=>{input.value=''});
+  save();exitSelMode();renderTaskList();closeMenu();
 }
 
 // ── PRESETS ──────────────────────────────────────────────────────
