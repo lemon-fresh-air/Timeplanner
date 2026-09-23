@@ -1,4 +1,4 @@
-const CACHE_NAME = 'timeplanner-v9';
+const CACHE_NAME = 'timeplanner-v10';
 const APP_SHELL = [
   './',
   './index.html',

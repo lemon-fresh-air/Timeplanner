@@ -20,13 +20,16 @@ const output = template
   .replace('{{PWA_SW_REGISTRATION}}', `
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then((registration) => registration.update());
+  });
 }
 </script>
 `);
 
 if (process.argv.includes('--verify')) {
-  const required = ['manifest.webmanifest', "serviceWorker.register('./sw.js')", 'Почати зараз'];
+  const required = ['manifest.webmanifest', "serviceWorker.register('./sw.js'", 'Почати зараз'];
   if (required.some((value) => !output.includes(value))) {
     throw new Error('The PWA build is missing a required integration.');
   }

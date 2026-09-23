@@ -436,7 +436,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .tl-block.collapsed .tl-time{font-size:19px}
 .tl-block.collapsed .tl-dur-label{max-height:0;opacity:0;margin-top:0}
 .tl-block.collapsed .tl-tasks-wrap{margin-top:0}
-.tl-block.collapsed .tl-foot{display:none}
+.tl-block.collapsed .tl-foot{display:flex;position:absolute;right:7px;top:5px;margin:0}
+.tl-block.collapsed .tl-toggle{width:30px;min-height:30px;padding:0;font-size:20px;line-height:1}
 .tl-block.collapsed{min-height:0}
 
 .tl-empty{margin:20px 0 40px;padding:22px 18px;border-radius:var(--r-sm);background:var(--surface);box-shadow:var(--shadow);text-align:center;color:var(--text2);font-size:14px;font-weight:600;opacity:0;transform:translateY(8px) scale(.98);transition:opacity .24s ease,transform .24s ease}
@@ -1564,13 +1565,11 @@ function addTask(){
 // ── CLEAR ALL ────────────────────────────────────────────────────
 function clearAll(){
   if(!confirm('Очистити всі задачі?'))return;
-  const timelineOpen=document.getElementById('panel-tl').classList.contains('active');
   tasks=[];
   groupNames={};
   tlOrder=[];tlCollapsed={};tlSelected=null;startAt=null;
   document.querySelectorAll('.tl-name-inp').forEach(input=>{input.value=''});
-  save();exitSelMode();renderTaskList();closeMenu();
-  if(timelineOpen)renderEmptyTimeline('Подію очищено');
+  save();exitSelMode();renderTaskList();renderEmptyTimeline('Подію очищено');closeMenu();
 }
 
 // ── PRESETS ──────────────────────────────────────────────────────
@@ -1867,7 +1866,7 @@ function renderTimeline(){
       <div class="tl-tasks-wrap"><div class="tl-tasks-inner" style="max-height:${tasksMaxH}px"><div class="tl-tasks">${subList}</div></div></div>
       <div class="tl-summary"><div class="tl-summary-inner"><div class="tl-summary-text">${g.tasks.length} ${taskWord(g.tasks.length)} · ${fmtM(gTot)}</div></div></div>
       <div class="tl-foot">
-        <button class="tl-toggle">${isCol?'розгорнути':'згорнути'}</button>
+        <button class="tl-toggle" aria-label="${isCol?'Розгорнути блок':'Згорнути блок'}">${isCol?'⤢':'згорнути'}</button>
       </div>
     </div>`;
 
@@ -1913,7 +1912,8 @@ function renderTimeline(){
       save();
       setToggleSpeed();
       blk.classList.toggle('collapsed',willCollapse);
-      tog.textContent=willCollapse?'розгорнути':'згорнути';
+      tog.textContent=willCollapse?'⤢':'згорнути';
+      tog.setAttribute('aria-label',willCollapse?'Розгорнути блок':'Згорнути блок');
       if(!willCollapse)setTimeout(checkClip,parseFloat(wrapEl0?.style.transitionDuration)||340);
     });
     blk.addEventListener('click',()=>{
@@ -1922,7 +1922,7 @@ function renderTimeline(){
         save();
         setToggleSpeed();
         blk.classList.remove('collapsed');
-        if(tog)tog.textContent='згорнути';
+        if(tog){tog.textContent='згорнути';tog.setAttribute('aria-label','Згорнути блок')}
         setTimeout(checkClip,parseFloat(wrapEl0?.style.transitionDuration)||340);
       }
     });
@@ -2295,7 +2295,10 @@ document.addEventListener('contextmenu', e=>{
 
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then((registration) => registration.update());
+  });
 }
 </script>
 </body>

@@ -427,7 +427,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .tl-block.collapsed .tl-time{font-size:19px}
 .tl-block.collapsed .tl-dur-label{max-height:0;opacity:0;margin-top:0}
 .tl-block.collapsed .tl-tasks-wrap{margin-top:0}
-.tl-block.collapsed .tl-foot{display:none}
+.tl-block.collapsed .tl-foot{display:flex;position:absolute;right:7px;top:5px;margin:0}
+.tl-block.collapsed .tl-toggle{width:30px;min-height:30px;padding:0;font-size:20px;line-height:1}
 .tl-block.collapsed{min-height:0}
 
 .tl-empty{margin:20px 0 40px;padding:22px 18px;border-radius:var(--r-sm);background:var(--surface);box-shadow:var(--shadow);text-align:center;color:var(--text2);font-size:14px;font-weight:600;opacity:0;transform:translateY(8px) scale(.98);transition:opacity .24s ease,transform .24s ease}

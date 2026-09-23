@@ -906,13 +906,11 @@ function addTask(){
 // ── CLEAR ALL ────────────────────────────────────────────────────
 function clearAll(){
   if(!confirm('Очистити всі задачі?'))return;
-  const timelineOpen=document.getElementById('panel-tl').classList.contains('active');
   tasks=[];
   groupNames={};
   tlOrder=[];tlCollapsed={};tlSelected=null;startAt=null;
   document.querySelectorAll('.tl-name-inp').forEach(input=>{input.value=''});
-  save();exitSelMode();renderTaskList();closeMenu();
-  if(timelineOpen)renderEmptyTimeline('Подію очищено');
+  save();exitSelMode();renderTaskList();renderEmptyTimeline('Подію очищено');closeMenu();
 }
 
 // ── PRESETS ──────────────────────────────────────────────────────
@@ -1209,7 +1207,7 @@ function renderTimeline(){
       <div class="tl-tasks-wrap"><div class="tl-tasks-inner" style="max-height:${tasksMaxH}px"><div class="tl-tasks">${subList}</div></div></div>
       <div class="tl-summary"><div class="tl-summary-inner"><div class="tl-summary-text">${g.tasks.length} ${taskWord(g.tasks.length)} · ${fmtM(gTot)}</div></div></div>
       <div class="tl-foot">
-        <button class="tl-toggle">${isCol?'розгорнути':'згорнути'}</button>
+        <button class="tl-toggle" aria-label="${isCol?'Розгорнути блок':'Згорнути блок'}">${isCol?'⤢':'згорнути'}</button>
       </div>
     </div>`;
 
@@ -1255,7 +1253,8 @@ function renderTimeline(){
       save();
       setToggleSpeed();
       blk.classList.toggle('collapsed',willCollapse);
-      tog.textContent=willCollapse?'розгорнути':'згорнути';
+      tog.textContent=willCollapse?'⤢':'згорнути';
+      tog.setAttribute('aria-label',willCollapse?'Розгорнути блок':'Згорнути блок');
       if(!willCollapse)setTimeout(checkClip,parseFloat(wrapEl0?.style.transitionDuration)||340);
     });
     blk.addEventListener('click',()=>{
@@ -1264,7 +1263,7 @@ function renderTimeline(){
         save();
         setToggleSpeed();
         blk.classList.remove('collapsed');
-        if(tog)tog.textContent='згорнути';
+        if(tog){tog.textContent='згорнути';tog.setAttribute('aria-label','Згорнути блок')}
         setTimeout(checkClip,parseFloat(wrapEl0?.style.transitionDuration)||340);
       }
     });
