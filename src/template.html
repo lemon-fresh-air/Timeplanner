@@ -36,8 +36,13 @@
   <!-- PLAN PANEL -->
   <div class="panel active" id="panel-plan">
 
+    <div class="plan-mode-switch" role="group" aria-label="Режим планування">
+      <button class="plan-mode-btn active" id="modeDeadlineBtn" onclick="setPlanMode('deadline')">Встигнути до часу</button>
+      <button class="plan-mode-btn" id="modeStartBtn" onclick="setPlanMode('start')">Почати зараз</button>
+    </div>
+
     <!-- Deadline -->
-    <div class="dl-card">
+    <div class="dl-card" id="deadlineCard">
       <div class="dl-left">
         <div class="dl-eyebrow">Подія</div>
         <input class="dl-name-inp" id="dlName" placeholder="Куди треба потрапити?">
@@ -45,6 +50,12 @@
       <button class="dl-time-btn" id="dlTimeBtn" onclick="openTimePicker()">
         <span id="dlTimeDisplay">18:00</span>
       </button>
+    </div>
+
+    <div class="start-card" id="startCard" hidden>
+      <div class="dl-eyebrow">Початок через 5 хвилин</div>
+      <div class="start-time" id="startModeTime">—</div>
+      <div class="start-result">Завершиш о <strong id="startModeFinish">—</strong><span id="startModeDuration"></span></div>
     </div>
 
     <!-- Task card -->
@@ -90,12 +101,12 @@
   <div class="panel" id="panel-tl">
     <div class="tl-header">
       <div>
-        <div class="tl-hl">Починати о</div>
+        <div class="tl-hl" id="tlStartLabel">Починати о</div>
         <div class="tl-start-time" id="tlStart">—</div>
         <div class="tl-now-banner" id="tlNowBanner"></div>
       </div>
       <div style="text-align:right">
-        <div class="tl-hl">Дедлайн</div>
+        <div class="tl-hl" id="tlEndLabel">Дедлайн</div>
         <div class="tl-end-time" id="tlEndTime">—</div>
         <div class="tl-end-name" id="tlEndName">—</div>
       </div>

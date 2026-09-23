@@ -26,16 +26,11 @@ if ('serviceWorker' in navigator) {
 `);
 
 if (process.argv.includes('--verify')) {
-  const original = await readFile('archive/timeplanner-41.html', 'utf8');
-  const reconstructedOriginal = template
-    .replace('{{STYLES}}', styles)
-    .replace('{{SCRIPT}}', script)
-    .replace('{{PWA_HEAD}}', '')
-    .replace('{{PWA_SW_REGISTRATION}}', '');
-  if (reconstructedOriginal !== original) {
-    throw new Error('The editable app source differs from the archived original.');
+  const required = ['manifest.webmanifest', "serviceWorker.register('./sw.js')", 'Почати зараз'];
+  if (required.some((value) => !output.includes(value))) {
+    throw new Error('The PWA build is missing a required integration.');
   }
-  console.log('Verified: the editable app source is identical to the archived original.');
+  console.log('Verified: the PWA build contains the required integrations.');
 } else {
   await writeFile('index.html', output);
   console.log('Built index.html for GitHub Pages.');

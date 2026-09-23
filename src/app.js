@@ -22,7 +22,7 @@ function isLightColor(hex){
 
 // ── STATE ────────────────────────────────────────────────────────
 // task: {id, name, mins, colorId}
-let tasks=[], presets=[], dlTime='18:00', dlName='';
+let tasks=[], presets=[], dlTime='18:00', dlName='', planMode='deadline', startAt=null;
 let defaultColorId='c5'; // yellow
 let selMode=false, selectedIds=new Set();
 let tlOrder=[], tlCollapsed={}, tlSelected=null, tlDragSrc=null, groupNames={};
@@ -31,13 +31,15 @@ function uid(){return Math.random().toString(36).slice(2,8)}
 
 // ── PERSIST ──────────────────────────────────────────────────────
 function save(){
-  localStorage.setItem('kmt6',JSON.stringify({tasks,presets,dlTime,dlName,defaultColorId,tlOrder,tlCollapsed,groupNames}));
+  localStorage.setItem('kmt6',JSON.stringify({tasks,presets,dlTime,dlName,planMode,startAt,defaultColorId,tlOrder,tlCollapsed,groupNames}));
 }
 function load(){
   try{
     const d=JSON.parse(localStorage.getItem('kmt6')||'{}');
     tasks=d.tasks||[];presets=d.presets||defPresets();
     dlTime=d.dlTime||'18:00';dlName=d.dlName||'';
+    planMode=d.planMode==='start'?'start':'deadline';
+    startAt=Number.isInteger(d.startAt)?d.startAt:null;
     defaultColorId=d.defaultColorId||'c5';
     tlOrder=d.tlOrder||[];tlCollapsed=d.tlCollapsed||{};
     groupNames=d.groupNames||{};
@@ -117,6 +119,31 @@ function taskWord(n){
 function updateTotalLabel(){
   const m=tasks.reduce((s,t)=>s+t.mins,0);
   document.getElementById('totalLabel').textContent=m?` · ${fmtM(m)}`:'';
+  updateStartModePreview();
+}
+
+function setPlanMode(mode){
+  planMode=mode==='start'?'start':'deadline';
+  save();applyPlanMode();
+}
+function applyPlanMode(){
+  const starting=planMode==='start';
+  document.getElementById('modeDeadlineBtn')?.classList.toggle('active',!starting);
+  document.getElementById('modeStartBtn')?.classList.toggle('active',starting);
+  document.getElementById('deadlineCard').hidden=starting;
+  document.getElementById('startCard').hidden=!starting;
+  updateStartModePreview();
+}
+function updateStartModePreview(){
+  const start=nowMin()+5;
+  const total=tasks.reduce((sum,task)=>sum+task.mins,0);
+  const startTime=document.getElementById('startModeTime');
+  const finishTime=document.getElementById('startModeFinish');
+  const duration=document.getElementById('startModeDuration');
+  if(!startTime||!finishTime||!duration)return;
+  startTime.textContent=`Старт о ${m2t(start)}`;
+  finishTime.textContent=total?m2t(start+total):'—';
+  duration.textContent=total?`(${fmtM(total)})`:'Додай задачі';
 }
 
 // ── SELECTION MODE ───────────────────────────────────────────────
@@ -1016,7 +1043,8 @@ function savePresetEdit(){
 
 // ── BUILD TIMELINE ───────────────────────────────────────────────
 function buildTimeline(){
-  dlName=document.getElementById('dlName').value.trim()||'Подія';
+  if(planMode==='deadline')dlName=document.getElementById('dlName').value.trim()||'Подія';
+  else startAt=nowMin()+5;
   save();
   if(!tasks.length){showToast('Спочатку додай задачі');return}
   const seen=[];tasks.forEach(t=>{if(!seen.includes(t.colorId))seen.push(t.colorId)});
@@ -1032,12 +1060,16 @@ function fwdDiff(a,b){return ((b-a)%1440+1440)%1440}
 function renderTimeline(){
   const dlM=t2m(dlTime);
   const total=tasks.reduce((s,t)=>s+t.mins,0);
-  const startM=dlM-total;
   const nowM=nowMin();
+  const startM=planMode==='start'?(startAt??nowM+5):dlM-total;
+  const endM=planMode==='start'?startM+total:dlM;
+  const endName=planMode==='start'?'Завершення задач':dlName;
 
   document.getElementById('tlStart').textContent=m2t(startM);
-  document.getElementById('tlEndTime').textContent=dlTime;
-  document.getElementById('tlEndName').textContent=dlName;
+  document.getElementById('tlStartLabel').textContent=planMode==='start'?'Старт через 5 хв':'Починати о';
+  document.getElementById('tlEndLabel').textContent=planMode==='start'?'Завершиш о':'Дедлайн';
+  document.getElementById('tlEndTime').textContent=m2t(endM);
+  document.getElementById('tlEndName').textContent=endName;
 
   // group tasks by colorId, in tlOrder
   const groups=tlOrder.map(cid=>({
@@ -1086,12 +1118,12 @@ function renderTimeline(){
       } else {
         // either before start (haven't reached startM yet today) or already past deadline
         const toStart=fwdDiff(nowM,startM);
-        const sinceEnd=fwdDiff(dlM,nowM);
+        const sinceEnd=fwdDiff(endM,nowM);
         if(toStart<=720){
           banner.innerHTML=`<span class="tl-now-dot"></span>До початку: ${fmtM(toStart)}`;
           banner.classList.add('show','waiting');
         } else if(sinceEnd<=720){
-          banner.innerHTML=`<span class="tl-now-dot"></span>Час вийшов`;
+          banner.innerHTML=`<span class="tl-now-dot"></span>${planMode==='start'?'Усі задачі завершені':'Час вийшов'}`;
           banner.classList.add('show','done');
         }
       }
@@ -1276,7 +1308,8 @@ function renderTimeline(){
   });
 
   const cap=document.createElement('div');cap.className='tl-cap';
-  cap.innerHTML=`<div><div class="tl-cap-lbl">Дедлайн</div><div class="tl-cap-name">${escH(dlName)}</div></div><div class="tl-cap-time">${dlTime}</div>`;
+  const capLabel=planMode==='start'?'Завершення':'Дедлайн';
+  cap.innerHTML=`<div><div class="tl-cap-lbl">${capLabel}</div><div class="tl-cap-name">${escH(endName)}</div></div><div class="tl-cap-time">${m2t(endM)}</div>`;
   container.appendChild(cap);
 }
 
@@ -1549,9 +1582,10 @@ function importJSON(e){
   };
   reader.readAsText(file);
 }
-load();applyTheme();applyNumbering();renderTaskList();
+load();applyTheme();applyNumbering();applyPlanMode();renderTaskList();
 updateDlTimeDisplay();
 document.getElementById('dlName').value=dlName;
+setInterval(updateStartModePreview,10000);
 if(tasks.length&&tlOrder.length){
   switchTab('tl',document.querySelector('[data-tab="tl"]'));
 }

@@ -51,6 +51,16 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .tab{flex:1;padding:10px 8px;text-align:center;font-size:14px;font-weight:600;color:var(--text3);cursor:pointer;border-radius:11px;transition:all .2s;border:none;background:transparent;font-family:var(--font)}
 .tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 8px rgba(0,0,0,.08)}
 
+/* ── PLAN MODE ── */
+.plan-mode-switch{display:flex;margin:0 16px 10px;padding:4px;background:var(--surface2);border-radius:14px;gap:4px}
+.plan-mode-btn{flex:1;min-height:42px;border:0;border-radius:10px;background:transparent;color:var(--text3);font:600 13px var(--font);cursor:pointer;transition:all .18s}
+.plan-mode-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 8px rgba(0,0,0,.08)}
+.start-card{background:var(--surface);border-radius:var(--r);padding:16px 18px;margin:0 16px 14px;box-shadow:var(--shadow)}
+.start-time{font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--text);margin-bottom:7px}
+.start-result{font-size:14px;color:var(--text2)}
+.start-result strong{font-size:18px;color:var(--text);margin-left:3px}
+.start-result span{margin-left:6px;color:var(--text3)}
+
 /* ── SCROLL ── */
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 24px;min-height:0}
 .scroll-area::-webkit-scrollbar{display:none}
