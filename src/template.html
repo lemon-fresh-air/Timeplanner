@@ -54,7 +54,11 @@
     </div>
 
     <div class="start-card" id="startCard" hidden>
-      <div class="dl-eyebrow">Початок через 5 хвилин</div>
+      <label class="start-now-check">
+        <input type="checkbox" id="startNowCheck" onchange="setStartImmediately(this.checked)">
+        <span>Почати зараз</span>
+      </label>
+      <div class="dl-eyebrow" id="startModeLabel">Початок через 5 хвилин</div>
       <div class="start-time" id="startModeTime">—</div>
       <div class="start-result">Завершиш о <strong id="startModeFinish">—</strong><span id="startModeDuration"></span></div>
     </div>

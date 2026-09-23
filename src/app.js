@@ -22,7 +22,7 @@ function isLightColor(hex){
 
 // ── STATE ────────────────────────────────────────────────────────
 // task: {id, name, mins, colorId}
-let tasks=[], presets=[], dlTime='18:00', dlName='', planMode='deadline', startAt=null;
+let tasks=[], presets=[], dlTime='18:00', dlName='', planMode='deadline', startAt=null, startImmediately=false;
 let defaultColorId='c5'; // yellow
 let selMode=false, selectedIds=new Set();
 let tlOrder=[], tlCollapsed={}, tlSelected=null, tlDragSrc=null, groupNames={};
@@ -31,7 +31,7 @@ function uid(){return Math.random().toString(36).slice(2,8)}
 
 // ── PERSIST ──────────────────────────────────────────────────────
 function save(){
-  localStorage.setItem('kmt6',JSON.stringify({tasks,presets,dlTime,dlName,planMode,startAt,defaultColorId,tlOrder,tlCollapsed,groupNames}));
+  localStorage.setItem('kmt6',JSON.stringify({tasks,presets,dlTime,dlName,planMode,startAt,startImmediately,defaultColorId,tlOrder,tlCollapsed,groupNames}));
 }
 function load(){
   try{
@@ -40,6 +40,7 @@ function load(){
     dlTime=d.dlTime||'18:00';dlName=d.dlName||'';
     planMode=d.planMode==='start'?'start':'deadline';
     startAt=Number.isInteger(d.startAt)?d.startAt:null;
+    startImmediately=Boolean(d.startImmediately);
     defaultColorId=d.defaultColorId||'c5';
     tlOrder=d.tlOrder||[];tlCollapsed=d.tlCollapsed||{};
     groupNames=d.groupNames||{};
@@ -129,21 +130,28 @@ function setPlanMode(mode){
 function togglePlanMode(){
   setPlanMode(planMode==='deadline'?'start':'deadline');
 }
+function setStartImmediately(checked){
+  startImmediately=checked;
+  save();updateStartModePreview();
+}
 function applyPlanMode(){
   const starting=planMode==='start';
   document.getElementById('modeToggleEmoji').textContent=starting?'🚀':'⏰';
   document.getElementById('modeToggleText').textContent=starting?'Почати зараз':'Встигнути до часу';
   document.getElementById('deadlineCard').hidden=starting;
   document.getElementById('startCard').hidden=!starting;
+  document.getElementById('startNowCheck').checked=startImmediately;
   updateStartModePreview();
 }
 function updateStartModePreview(){
-  const start=nowMin()+5;
+  const buffer=startImmediately?1:5;
+  const start=nowMin()+buffer;
   const total=tasks.reduce((sum,task)=>sum+task.mins,0);
   const startTime=document.getElementById('startModeTime');
   const finishTime=document.getElementById('startModeFinish');
   const duration=document.getElementById('startModeDuration');
   if(!startTime||!finishTime||!duration)return;
+  document.getElementById('startModeLabel').textContent=`Початок через ${buffer} ${buffer===1?'хвилину':'хвилин'}`;
   startTime.textContent=`Старт о ${m2t(start)}`;
   finishTime.textContent=total?m2t(start+total):'—';
   duration.textContent=total?`(${fmtM(total)})`:'Додай задачі';
@@ -1047,7 +1055,7 @@ function savePresetEdit(){
 // ── BUILD TIMELINE ───────────────────────────────────────────────
 function buildTimeline(){
   if(planMode==='deadline')dlName=document.getElementById('dlName').value.trim()||'Подія';
-  else startAt=nowMin()+5;
+  else startAt=nowMin()+(startImmediately?1:5);
   save();
   if(!tasks.length){showToast('Спочатку додай задачі');return}
   const seen=[];tasks.forEach(t=>{if(!seen.includes(t.colorId))seen.push(t.colorId)});
@@ -1069,7 +1077,7 @@ function renderTimeline(){
   const endName=planMode==='start'?'Завершення задач':dlName;
 
   document.getElementById('tlStart').textContent=m2t(startM);
-  document.getElementById('tlStartLabel').textContent=planMode==='start'?'Старт через 5 хв':'Починати о';
+  document.getElementById('tlStartLabel').textContent=planMode==='start'?`Старт через ${startImmediately?1:5} хв`:'Починати о';
   document.getElementById('tlEndLabel').textContent=planMode==='start'?'Завершиш о':'Дедлайн';
   document.getElementById('tlEndTime').textContent=m2t(endM);
   document.getElementById('tlEndName').textContent=endName;

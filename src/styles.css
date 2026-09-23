@@ -56,8 +56,13 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .plan-mode-switch:active{background:var(--border)}
 .plan-mode-emoji{font-size:18px;line-height:1}
 .plan-mode-arrow{margin-left:auto;color:var(--text3);font-size:18px}
-.start-card{background:var(--surface);border-radius:var(--r);padding:16px 18px;margin:0 16px 14px;box-shadow:var(--shadow)}
+.start-card{background:var(--surface);border-radius:var(--r);padding:16px 18px;margin:0 16px 14px;box-shadow:var(--shadow);position:relative}
 .dl-card[hidden],.start-card[hidden]{display:none}
+.start-now-check{position:absolute;right:16px;top:16px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap}
+.start-now-check input{appearance:none;width:17px;height:17px;margin:0;border:1.5px solid var(--border);border-radius:5px;background:var(--surface);display:grid;place-content:center;cursor:pointer}
+.start-now-check input::before{content:'✓';font-size:12px;font-weight:800;color:#fff;transform:scale(0);transition:transform .12s}
+.start-now-check input:checked{background:var(--text);border-color:var(--text)}
+.start-now-check input:checked::before{transform:scale(1)}
 .start-time{font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--text);margin-bottom:7px}
 .start-result{font-size:14px;color:var(--text2)}
 .start-result strong{font-size:18px;color:var(--text);margin-left:3px}
