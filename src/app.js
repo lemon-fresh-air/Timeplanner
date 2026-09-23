@@ -145,13 +145,16 @@ function applyPlanMode(){
 }
 function updateStartModePreview(){
   const buffer=startImmediately?1:5;
-  const start=nowMin()+buffer;
+  const lockedStart=startAt!==null;
+  const start=lockedStart?startAt:nowMin()+buffer;
   const total=tasks.reduce((sum,task)=>sum+task.mins,0);
   const startTime=document.getElementById('startModeTime');
   const finishTime=document.getElementById('startModeFinish');
   const duration=document.getElementById('startModeDuration');
   if(!startTime||!finishTime||!duration)return;
-  document.getElementById('startModeLabel').textContent=`Початок через ${buffer} ${buffer===1?'хвилину':'хвилин'}`;
+  document.getElementById('startModeLabel').textContent=lockedStart
+    ?'СТАРТ ЗАФІКСОВАНО'
+    :`Початок через ${buffer} ${buffer===1?'хвилину':'хвилин'}`;
   startTime.textContent=`Старт о ${m2t(start)}`;
   finishTime.textContent=total?m2t(start+total):'—';
   duration.textContent=total?`(${fmtM(total)})`:'Додай задачі';
