@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "split": "node tools/split.mjs",
-    "build": "node tools/build.mjs",
+    "icons": "node tools/create-icons.mjs",
+    "build": "node tools/create-icons.mjs && node tools/build.mjs",
     "verify": "node tools/build.mjs --verify"
   }
 }

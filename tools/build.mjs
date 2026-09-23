@@ -12,16 +12,31 @@ if (!template.includes('{{STYLES}}') || !template.includes('{{SCRIPT}}')) {
 
 const output = template
   .replace('{{STYLES}}', styles)
-  .replace('{{SCRIPT}}', script);
+  .replace('{{SCRIPT}}', script)
+  .replace('{{PWA_HEAD}}', `
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#F2F1ED">
+<link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png">`)
+  .replace('{{PWA_SW_REGISTRATION}}', `
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+}
+</script>
+`);
 
 if (process.argv.includes('--verify')) {
   const original = await readFile('archive/timeplanner-41.html', 'utf8');
-  if (output !== original) {
-    throw new Error('Build differs from the archived original.');
+  const reconstructedOriginal = template
+    .replace('{{STYLES}}', styles)
+    .replace('{{SCRIPT}}', script)
+    .replace('{{PWA_HEAD}}', '')
+    .replace('{{PWA_SW_REGISTRATION}}', '');
+  if (reconstructedOriginal !== original) {
+    throw new Error('The editable app source differs from the archived original.');
   }
-  console.log('Verified: dist output is identical to the archived original.');
+  console.log('Verified: the editable app source is identical to the archived original.');
 } else {
-  await mkdir('dist', { recursive: true });
-  await writeFile('dist/timeplanner.html', output);
-  console.log('Built dist/timeplanner.html.');
+  await writeFile('index.html', output);
+  console.log('Built index.html for GitHub Pages.');
 }

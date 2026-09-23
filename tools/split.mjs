@@ -10,7 +10,9 @@ if (!styles || !scripts) {
 
 const template = source
   .replace(styles[0], '<style>{{STYLES}}</style>')
-  .replace(scripts[0], '<script>{{SCRIPT}}</script>');
+  .replace(scripts[0], '<script>{{SCRIPT}}</script>')
+  .replace('</title>', '</title>{{PWA_HEAD}}')
+  .replace('</body>', '{{PWA_SW_REGISTRATION}}</body>');
 
 await mkdir('src', { recursive: true });
 await Promise.all([
