@@ -906,11 +906,13 @@ function addTask(){
 // ── CLEAR ALL ────────────────────────────────────────────────────
 function clearAll(){
   if(!confirm('Очистити всі задачі?'))return;
+  const timelineOpen=document.getElementById('panel-tl').classList.contains('active');
   tasks=[];
   groupNames={};
   tlOrder=[];tlCollapsed={};tlSelected=null;startAt=null;
   document.querySelectorAll('.tl-name-inp').forEach(input=>{input.value=''});
   save();exitSelMode();renderTaskList();closeMenu();
+  if(timelineOpen)renderEmptyTimeline('Подію очищено');
 }
 
 // ── PRESETS ──────────────────────────────────────────────────────
@@ -1075,9 +1077,23 @@ function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes()}
 // distance forward from a to b on a 24h wraparound clock (0..1439)
 function fwdDiff(a,b){return ((b-a)%1440+1440)%1440}
 
+function renderEmptyTimeline(message='Додай задачі, щоб побудувати таймлайн'){
+  document.getElementById('tlStart').textContent='—';
+  document.getElementById('tlEndTime').textContent='—';
+  document.getElementById('tlEndName').textContent='';
+  document.getElementById('tlStartLabel').textContent='Таймлайн';
+  document.getElementById('tlEndLabel').textContent='';
+  const banner=document.getElementById('tlNowBanner');
+  banner.innerHTML='';banner.classList.remove('show','waiting','done');
+  const container=document.getElementById('tlGroups');
+  container.innerHTML=`<div class="tl-empty">${escH(message)}</div>`;
+  requestAnimationFrame(()=>container.querySelector('.tl-empty')?.classList.add('show'));
+}
+
 function renderTimeline(){
   const dlM=t2m(dlTime);
   const total=tasks.reduce((s,t)=>s+t.mins,0);
+  if(!tasks.length){renderEmptyTimeline();return}
   const nowM=nowMin();
   const startM=planMode==='start'?(startAt??nowM+5):dlM-total;
   const endM=planMode==='start'?startM+total:dlM;
