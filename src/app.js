@@ -137,7 +137,7 @@ function setStartImmediately(checked){
 function applyPlanMode(){
   const starting=planMode==='start';
   document.getElementById('modeToggleEmoji').textContent=starting?'🚀':'⏰';
-  document.getElementById('modeToggleText').textContent=starting?'Почати зараз':'Встигнути до часу';
+  document.getElementById('modeToggleText').textContent=starting?'Почати зараз':'Зробити до події';
   document.getElementById('deadlineCard').hidden=starting;
   document.getElementById('startCard').hidden=!starting;
   document.getElementById('startNowCheck').checked=startImmediately;
@@ -906,7 +906,7 @@ function addTask(){
 // ── CLEAR ALL ────────────────────────────────────────────────────
 function clearAll(){
   if(!confirm('Очистити всі задачі?'))return;
-  tasks=[];save();exitSelMode();renderTaskList();closeMenu();
+  tasks=[];groupNames={};save();exitSelMode();renderTaskList();closeMenu();
 }
 
 // ── PRESETS ──────────────────────────────────────────────────────
@@ -1175,8 +1175,10 @@ function renderTimeline(){
     blk.innerHTML=`<div class="tl-inner">
       <div class="tl-top">
         <div>
-          <input class="tl-name-inp" data-cid="${g.colorId}" value="${escH(groupNames[g.colorId]||'')}" placeholder="${colorName}" maxlength="24">
-          <div class="tl-time">${m2t(gStart)}</div>
+          <div class="tl-title-row">
+            <div class="tl-time">${m2t(gStart)}</div>
+            <input class="tl-name-inp" data-cid="${g.colorId}" value="${escH(groupNames[g.colorId]||'')}" placeholder="${colorName}" maxlength="24">
+          </div>
           <div class="tl-dur-label">${fmtM(gTot)}</div>
         </div>
         <div class="tl-actions">
