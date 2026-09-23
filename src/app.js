@@ -493,14 +493,23 @@ function saveWithHistory(){
 }
 
 // ── CLEAR EVENT ───────────────────────────────────────────────────
+function resetTimelineState(){
+  groupNames={};
+  tlOrder=[];tlCollapsed={};tlSelected=null;startAt=null;
+  document.querySelectorAll('.tl-name-inp').forEach(input=>{input.value=''});
+}
+
 function clearEvent(){
   if(!confirm('Очистити подію і всі задачі?')) return;
   pushHistory();
   tasks=[]; dlTime='18:00'; dlName='';
+  resetTimelineState();
   save(); exitSelMode(); renderTaskList();
   updateDlTimeDisplay();
   document.getElementById('dlName').value='';
+  renderEmptyTimeline('Подію очищено');
   closeMenu();
+  showToast('Подію очищено');
 }
 
 // ── SORT BY COLOR ─────────────────────────────────────────────────
@@ -907,9 +916,7 @@ function addTask(){
 function clearAll(){
   if(!confirm('Очистити всі задачі?'))return;
   tasks=[];
-  groupNames={};
-  tlOrder=[];tlCollapsed={};tlSelected=null;startAt=null;
-  document.querySelectorAll('.tl-name-inp').forEach(input=>{input.value=''});
+  resetTimelineState();
   save();exitSelMode();renderTaskList();renderEmptyTimeline('Подію очищено');closeMenu();
 }
 
