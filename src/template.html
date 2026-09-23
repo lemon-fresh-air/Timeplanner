@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Коли мені треба</title>
+<style>{{STYLES}}</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP BAR -->
+<!-- TABS + MENU -->
+<div class="tabs">
+  <button class="tab active" data-tab="plan" onclick="switchTab('plan',this)">Задачі<span class="topbar-sub" id="totalLabel"></span></button>
+  <button class="tab" data-tab="tl" onclick="switchTab('tl',this)">Таймлайн</button>
+  <div style="position:relative;flex-shrink:0;display:flex;align-items:center;padding:0 4px">
+    <button class="menu-btn" id="menuBtn" onclick="toggleMenu()">⋯</button>
+    <div class="dropdown" id="dropdown">
+      <button class="dd-item" onclick="toggleTheme()"><span>🌙</span> Темна тема</button>
+      <button class="dd-item" onclick="toggleNumbering()"><span>🔢</span> Нумерація задач<span id="ddNumCheck" class="dd-check"></span></button>
+      <button class="dd-item" onclick="openPresets('manage')"><span>📋</span> Пресети</button>
+      <button class="dd-item" onclick="sortByColor()"><span>🎨</span> Сортувати по кольору</button>
+      <button class="dd-item" id="ddUndo" onclick="undoAction();closeMenu()" style="display:none"><span>↩</span><span id="ddUndoText"> Скасувати дію</span></button>
+      <button class="dd-item" onclick="exportJSON()"><span>⬆</span> Експорт JSON</button>
+      <button class="dd-item" onclick="triggerImport()"><span>⬇</span> Імпорт JSON</button>
+      <button class="dd-item danger" onclick="clearEvent()"><span>🗑</span> Очистити подію</button>
+    </div>
+    <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importJSON(event)">
+  </div>
+</div>
+
+<!-- SCROLL -->
+<div class="scroll-area" id="scrollArea">
+
+  <!-- PLAN PANEL -->
+  <div class="panel active" id="panel-plan">
+
+    <!-- Deadline -->
+    <div class="dl-card">
+      <div class="dl-left">
+        <div class="dl-eyebrow">Подія</div>
+        <input class="dl-name-inp" id="dlName" placeholder="Куди треба потрапити?">
+      </div>
+      <button class="dl-time-btn" id="dlTimeBtn" onclick="openTimePicker()">
+        <span id="dlTimeDisplay">18:00</span>
+      </button>
+    </div>
+
+    <!-- Task card -->
+    <!-- Selection bar (sticky, outside task-card so overflow:hidden doesn't clip it) -->
+    <div class="sel-bar" id="selBar">
+      <span class="sel-count" id="selCount">0 вибрано</span>
+      <button class="sel-action sel-move-btn" id="selUpBtn" onclick="moveSelection(-1)">⬆</button>
+      <button class="sel-action sel-move-btn" id="selDownBtn" onclick="moveSelection(1)">⬇</button>
+      <button class="sel-action sel-color-btn sq" onclick="openColorSheet('bulk')">🎨</button>
+      <button class="sel-action sel-del-btn" onclick="bulkDelete()">✕</button>
+      <button class="sel-action sel-ok-btn" onclick="exitSelMode()">OK</button>
+    </div>
+
+    <div class="task-card" id="taskCard">
+
+      <!-- Task list -->
+      <div class="task-list-inner" id="taskListInner"></div>
+
+      <!-- Add task -->
+      <div class="add-task-row" style="display:flex;gap:0;border-top:1px solid var(--border)">
+        <button class="add-task-btn" style="border-right:1px solid var(--border)" onclick="addTask()">＋ Задача</button>
+        <button class="add-task-btn" style="color:var(--text2)" onclick="openPresets('pick')">＋ З пресету</button>
+      </div>
+
+      <!-- Default color row -->
+      <div class="color-row-wrap" style="border-top:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:600;color:var(--text3)">Колір нових:</span>
+        <button class="new-color-pill" id="newColorPill" onclick="openColorSheet('default')">
+          <div class="new-dot" id="newColorDot"></div>
+          <span id="newColorName"></span>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="build-sticky">
+      <button class="build-btn" onclick="buildTimeline()">Зібрати таймлайн →</button>
+    </div>
+
+  </div><!-- /plan -->
+
+  <!-- TIMELINE PANEL -->
+  <div class="panel" id="panel-tl">
+    <div class="tl-header">
+      <div>
+        <div class="tl-hl">Починати о</div>
+        <div class="tl-start-time" id="tlStart">—</div>
+        <div class="tl-now-banner" id="tlNowBanner"></div>
+      </div>
+      <div style="text-align:right">
+        <div class="tl-hl">Дедлайн</div>
+        <div class="tl-end-time" id="tlEndTime">—</div>
+        <div class="tl-end-name" id="tlEndName">—</div>
+      </div>
+    </div>
+    <div id="tlGroups"></div>
+  </div>
+
+</div><!-- /scroll -->
+<!-- TIME PICKER SHEET -->
+<div class="sheet-overlay" id="timePickerSheet" onclick="closeTimePicker(event)">
+  <div class="sheet" style="padding-bottom:calc(24px + env(safe-area-inset-bottom))">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" style="text-align:center;margin-bottom:16px">Час події</div>
+
+    <!-- Manual input -->
+    <div class="tp-manual">
+      <input class="tp-manual-inp" id="tpHInp" type="text" inputmode="numeric" maxlength="2" placeholder="ГГ">
+      <span class="tp-manual-colon">:</span>
+      <input class="tp-manual-inp" id="tpMInp" type="text" inputmode="numeric" maxlength="2" placeholder="ХХ">
+    </div>
+
+    <!-- Drums -->
+    <div class="tp-wrap">
+      <div class="tp-selector"></div>
+      <div class="tp-drum-wrap">
+        <div class="tp-drum" id="tpHours"></div>
+      </div>
+      <div class="tp-colon">:</div>
+      <div class="tp-drum-wrap">
+        <div class="tp-drum" id="tpMins"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="build-btn" style="background:var(--surface2);color:var(--text2);flex:1" onclick="closeTimePicker()">Скасувати</button>
+      <button class="build-btn" style="flex:2" onclick="confirmTimePicker()">Встановити</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- COLOR SHEET -->
+<div class="sheet-overlay" id="colorSheet" onclick="closeColorSheet(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheetTitle">Колір</div>
+    <div class="color-grid" id="colorGrid"></div>
+  </div>
+</div>
+
+<!-- PRESETS SHEET -->
+<div class="sheet-overlay" id="presetsSheet" onclick="closePresetsSheet(event)">
+  <div class="sheet" style="max-height:85dvh;overflow-y:auto;padding-bottom:calc(32px + env(safe-area-inset-bottom))">
+    <div class="sheet-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="sheet-title" id="presetsSheetTitle" style="margin-bottom:0">Пресети</div>
+      <button class="sel-action sel-color-btn" style="font-size:13px" onclick="startNewPreset()">＋ Новий</button>
+    </div>
+    <div class="preset-list" id="presetList"></div>
+  </div>
+</div>
+
+<!-- PRESET EDIT SHEET -->
+<div class="sheet-overlay" id="presetEditSheet" onclick="closePresetEdit(event)">
+  <div class="sheet" style="max-height:90dvh;overflow-y:auto;padding-bottom:calc(32px + env(safe-area-inset-bottom))">
+    <div class="sheet-handle"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <input id="presetEditName" class="group-name-inp" placeholder="Назва пресету" style="font-size:17px;flex:1;border-bottom:2px solid var(--border);padding-bottom:4px">
+      <button class="sel-action sel-ok-btn" onclick="savePresetEdit()">Зберегти</button>
+    </div>
+    <div id="presetEditTaskList" style="display:flex;flex-direction:column;gap:2px;margin-bottom:10px"></div>
+    <button class="add-task-btn" style="padding-left:4px;color:var(--text3);font-size:13px" onclick="addPresetTask()">＋ Ще одна задача в пресет</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="undo-toast" id="undoToast">
+  <div class="undo-timer">
+    <svg width="36" height="36" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="14" stroke="rgba(255,255,255,.15)" stroke-width="3" fill="none"/>
+      <circle class="undo-timer-ring" id="undoRing" cx="18" cy="18" r="14"/>
+    </svg>
+  </div>
+  <span class="undo-msg" id="undoMsg"></span>
+  <button class="undo-btn" onclick="undoLastDeletion()">Скасувати</button>
+</div>
+
+<script>{{SCRIPT}}</script>
+</body>
+</html>

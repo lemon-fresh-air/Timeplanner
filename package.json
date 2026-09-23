@@ -1,0 +1,9 @@
+{
+  "name": "timeplanner",
+  "private": true,
+  "scripts": {
+    "split": "node tools/split.mjs",
+    "build": "node tools/build.mjs",
+    "verify": "node tools/build.mjs --verify"
+  }
+}
