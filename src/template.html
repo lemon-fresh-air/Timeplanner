@@ -36,10 +36,11 @@
   <!-- PLAN PANEL -->
   <div class="panel active" id="panel-plan">
 
-    <div class="plan-mode-switch" role="group" aria-label="Режим планування">
-      <button class="plan-mode-btn active" id="modeDeadlineBtn" onclick="setPlanMode('deadline')">Встигнути до часу</button>
-      <button class="plan-mode-btn" id="modeStartBtn" onclick="setPlanMode('start')">Почати зараз</button>
-    </div>
+    <button class="plan-mode-switch" id="modeToggle" onclick="togglePlanMode()" aria-label="Змінити режим планування">
+      <span class="plan-mode-emoji" id="modeToggleEmoji">⏰</span>
+      <span id="modeToggleText">Встигнути до часу</span>
+      <span class="plan-mode-arrow">⇄</span>
+    </button>
 
     <!-- Deadline -->
     <div class="dl-card" id="deadlineCard">

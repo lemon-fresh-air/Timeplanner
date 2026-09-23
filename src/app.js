@@ -126,10 +126,13 @@ function setPlanMode(mode){
   planMode=mode==='start'?'start':'deadline';
   save();applyPlanMode();
 }
+function togglePlanMode(){
+  setPlanMode(planMode==='deadline'?'start':'deadline');
+}
 function applyPlanMode(){
   const starting=planMode==='start';
-  document.getElementById('modeDeadlineBtn')?.classList.toggle('active',!starting);
-  document.getElementById('modeStartBtn')?.classList.toggle('active',starting);
+  document.getElementById('modeToggleEmoji').textContent=starting?'🚀':'⏰';
+  document.getElementById('modeToggleText').textContent=starting?'Почати зараз':'Встигнути до часу';
   document.getElementById('deadlineCard').hidden=starting;
   document.getElementById('startCard').hidden=!starting;
   updateStartModePreview();

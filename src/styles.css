@@ -52,10 +52,12 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 8px rgba(0,0,0,.08)}
 
 /* ── PLAN MODE ── */
-.plan-mode-switch{display:flex;margin:0 16px 10px;padding:4px;background:var(--surface2);border-radius:14px;gap:4px}
-.plan-mode-btn{flex:1;min-height:42px;border:0;border-radius:10px;background:transparent;color:var(--text3);font:600 13px var(--font);cursor:pointer;transition:all .18s}
-.plan-mode-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 8px rgba(0,0,0,.08)}
+.plan-mode-switch{width:calc(100% - 32px);min-height:46px;margin:0 16px 10px;padding:0 15px;border:0;border-radius:var(--r-sm);background:var(--surface2);color:var(--text2);font:600 14px var(--font);display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .15s,color .15s}
+.plan-mode-switch:active{background:var(--border)}
+.plan-mode-emoji{font-size:18px;line-height:1}
+.plan-mode-arrow{margin-left:auto;color:var(--text3);font-size:18px}
 .start-card{background:var(--surface);border-radius:var(--r);padding:16px 18px;margin:0 16px 14px;box-shadow:var(--shadow)}
+.dl-card[hidden],.start-card[hidden]{display:none}
 .start-time{font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--text);margin-bottom:7px}
 .start-result{font-size:14px;color:var(--text2)}
 .start-result strong{font-size:18px;color:var(--text);margin-left:3px}
